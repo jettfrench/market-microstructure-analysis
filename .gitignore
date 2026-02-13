@@ -4,10 +4,20 @@ data/processed/*.csv
 
 # python
 __pycache__/
-*.pyc
-.ipynb_checkpoints/
+*.py[codz]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# environments
 venv/
 .venv/
+.env
+
+# jupyter
+.ipynb_checkpoints/
 
 # IDE
 .vscode/
