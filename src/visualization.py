@@ -206,3 +206,56 @@ def plot_feature_regime_comparison(bars, feature, feature_label=None, window=60)
     plt.suptitle(f'{feature_label} — Normal vs Crisis', y=1.02)
     plt.tight_layout()
     return fig
+
+
+def plot_feature_correlation(bars, feature_cols, title=None):
+    """
+    Correlation heatmap for microstructure features,
+    split by regime (normal vs crisis).
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(16, 7))
+
+    for i, period in enumerate(['normal', 'crisis']):
+        subset = bars[bars['period'] == period] if 'period' in bars.columns else bars
+        corr = subset[feature_cols].dropna().corr()
+
+        mask = np.triu(np.ones_like(corr, dtype=bool), k=1)
+        sns.heatmap(corr, mask=mask, ax=axes[i], cmap='RdBu_r', center=0,
+                    vmin=-1, vmax=1, annot=True, fmt='.2f', square=True,
+                    linewidths=0.5, cbar_kws={'shrink': 0.8},
+                    annot_kws={'fontsize': 8})
+
+        axes[i].set_title(f'{period.capitalize()} Period')
+        axes[i].tick_params(axis='x', rotation=45)
+
+    if title is None:
+        title = 'Feature Correlations — Normal vs Crisis'
+    plt.suptitle(title, y=1.02, fontsize=13)
+    plt.tight_layout()
+    return fig
+
+
+def plot_daily_feature_timeseries(daily_features, feature, ylabel=None):
+    """
+    Plot a feature's daily average over the full sample,
+    with a vertical line at the crisis start.
+    """
+    fig, ax = plt.subplots(figsize=(14, 5))
+
+    dates = daily_features['date']
+    values = daily_features[feature]
+
+    ax.plot(dates, values, color='steelblue', linewidth=1)
+    ax.fill_between(dates, 0, values, alpha=0.15, color='steelblue')
+
+    # crisis line
+    import datetime
+    crisis_start = datetime.date(2020, 2, 24)
+    ax.axvline(x=crisis_start, color='indianred', linestyle='--',
+               linewidth=1.5, label='Crisis onset (Feb 24)')
+
+    ax.set_ylabel(ylabel or feature)
+    ax.set_xlabel('Date')
+    ax.legend()
+    plt.tight_layout()
+    return fig
