@@ -5,6 +5,7 @@ We can't observe the order book directly from bar data, but we can estimate
 a lot of the same quantities using well-known estimators from the literature.
 """
 
+import warnings
 import pandas as pd
 import numpy as np
 
@@ -264,6 +265,9 @@ def compute_all_features(df):
     Expects a cleaned dataframe with derived columns already added.
     """
     df = df.copy()
+
+    # suppress sqrt warnings from volatile periods (produces NaN, which we handle)
+    warnings.filterwarnings('ignore', 'invalid value encountered in sqrt', RuntimeWarning)
 
     # spread estimates
     df['cs_spread'] = corwin_schultz_spread(df['high'], df['low'])
